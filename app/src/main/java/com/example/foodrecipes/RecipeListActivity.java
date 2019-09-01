@@ -12,6 +12,7 @@ import com.example.foodrecipes.adapters.OnRecipeListener;
 import com.example.foodrecipes.adapters.RecipeRecyclerAdapter;
 import com.example.foodrecipes.models.Recipe;
 import com.example.foodrecipes.util.Testing;
+import com.example.foodrecipes.util.VerticalSpacingItemDecorator;
 import com.example.foodrecipes.viewmodels.RecipeListViewModel;
 
 import java.util.List;
@@ -35,6 +36,10 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         initRecyclerView();
         subscribeObservers();
         initSearchView();
+
+        if(!mRecipeListViewModel.isViewingRecipes()) {
+            displaySearchCategories();
+        }
     }
 
     private void subscribeObservers() {
@@ -42,8 +47,10 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
             @Override
             public void onChanged(List<Recipe> recipes) {
                 if(recipes != null) {
-                    Testing.printRecipes(recipes, "recipes test");
-                    mAdapter.setRecipes(recipes);
+                    if(mRecipeListViewModel.isViewingRecipes()) {
+                        Testing.printRecipes(recipes, "recipes test");
+                        mAdapter.setRecipes(recipes);
+                    }
                 }
             }
         });
@@ -51,6 +58,10 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     private void initRecyclerView() {
         mAdapter = new RecipeRecyclerAdapter(this);
+
+        VerticalSpacingItemDecorator itemDecorator = new VerticalSpacingItemDecorator(30);
+        mRecyclerView.addItemDecoration(itemDecorator);
+
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -62,6 +73,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
             public boolean onQueryTextSubmit(String s) {
                 mAdapter.displayLoading();
                 mRecipeListViewModel.searchRecipesApi(s, 1);
+
                 return false;
             }
 
@@ -79,6 +91,21 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     @Override
     public void onCategoryClick(String category) {
+        mAdapter.displayLoading();
+        mRecipeListViewModel.searchRecipesApi(category, 1);
+    }
 
+    private void displaySearchCategories() {
+        mRecipeListViewModel.setIsViewingRecipes(false);
+        mAdapter.displaySearchCategories();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mRecipeListViewModel.onBackPressed()) {
+            super.onBackPressed();
+        } else {
+            displaySearchCategories();
+        }
     }
 }
