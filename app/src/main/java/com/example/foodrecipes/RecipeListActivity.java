@@ -2,6 +2,7 @@ package com.example.foodrecipes;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -62,6 +63,16 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
                         mRecipeListViewModel.setIsPerformingQuery(false);
                         mAdapter.setRecipes(recipes);
                     }
+                }
+            }
+        });
+        
+        mRecipeListViewModel.isQueryExhausted().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean) {
+                    Log.d(TAG, "onChanged: the query is exhausted");
+                    mAdapter.setQueryExhausted();
                 }
             }
         });
