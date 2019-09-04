@@ -94,6 +94,10 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
           return CATEGORY_TYPE;
         } else if(mRecipes.get(position).getTitle().equals("LOADING...")) {
             return LOADING_TYPE;
+        } else if(position == mRecipes.size() - 1 &&
+                position != 0 &&
+                !mRecipes.get(position).getTitle().equals("EXHAUSTED...")) {
+            return LOADING_TYPE;
         } else {
             return RECYPE_TYPE;
         }
@@ -143,5 +147,12 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void setRecipes(List<Recipe> recipes) {
         mRecipes = recipes;
         notifyDataSetChanged();
+    }
+
+    public Recipe getSelectedRecipe(int position) {
+        if(mRecipes != null && mRecipes.size() > 0) {
+            return mRecipes.get(position);
+        }
+        return null;
     }
 }
